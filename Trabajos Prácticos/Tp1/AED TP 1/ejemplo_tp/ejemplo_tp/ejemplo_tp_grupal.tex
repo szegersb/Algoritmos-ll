@@ -1,0 +1,509 @@
+\documentclass[10pt,a4paper]{article}
+
+\input{AEDmacros}
+\usepackage{caratula} % Version modificada para usar las macros de algo1 de ~> https://github.com/bcardiff/dc-tex
+
+
+\titulo{Trabajo Pr\'actico 1: Especificaci\'on y WP}
+\subtitulo{Fondo Monetario Com\'un}
+
+\fecha{\today}
+
+\materia{Algoritmos y Estructuras de Datos}
+\grupo{Grupo Debuggers}
+
+\integrante{Zegers, Santiago}{1433/21}{zegerssantiagob@gmail.com}
+\integrante{Azcurra, Mariano}{1321/21}{mariano.azcurra@hotmail.es}
+\integrante{Gonzalez Villagra, Nicolás Andrés}{1545/21}{nicofcen86@gmail.com}
+\integrante{Basualdo, Camilo}{225/19}{camilobasualdo@gmail.com}
+% Pongan cuantos integrantes quieran
+
+% Declaramos donde van a estar las figuras
+% No es obligatorio, pero suele ser comodo
+\graphicspath{{../static/}}
+
+\begin{document}
+
+\maketitle
+
+\begin{align*}
+\maketitle
+
+% EJERCICIO 1
+\section{Especificación}
+\subsection{redistribuciónDeLosFrutos:}
+\begin{proc}{redistribuciónDeLosFrutos}{\In recursos: \TLista{\float}, \In cooperan: \TLista{\bool}}{\TLista{\float}}
+\vspace{0.1cm}	
+    \requiere{\longitud{cooperan}>0 \y {\longitud{recursos}} = {\longitud{cooperan}} \y todosPositivos(recursos)}
+\vspace{0.1cm}
+	\asegura{{\longitud{result}} = {\longitud{recursos}} \y recursosLuegoDeDistribución(result, recursos, cooperan)} 
+\end{proc}
+\vspace{0.3cm}
+
+\pred{todosPositivos}{s: \seqr}{\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{s}\implicaLuego s[i] \geq 0}}
+\vspace{0.3cm}
+
+\pred{recursosLuegoDeDistribución}{r_f: \seqr, r_i: \seqr, b: \seqB}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{r_i} \yLuego aporta(i, b) \implicaLuego r_f[i] = redistribución(r_i,b)} \y 
+\newline{\paraTodo[unalinea]{j}{\ent}{0\leq j < \longitud{r_i} \yLuego \neg aporta(j, b) \implicaLuego r_f[j] = r_i[j] + redistribución(r_i,b)}} }
+\vspace{0.3cm}
+
+\pred{aporta}{i: \ent, b: \seqB}{
+b[i] = true
+}
+\vspace{0.3cm}
+
+\aux{redistribución}{s: \seqr, b: \seqB}{\float}{(\displaystyle\sum_{i=0}^{\longitud{b}-1} \IfThenElse{b[i]=true}{s[i]}{0})/\longitud{b}}
+\vspace{0.3cm}
+
+%EJERCICIO 2
+\subsection{trayectoriaDeLosFrutosIndividualesALargoPlazo}
+\begin{proc}{trayectoriaDeLosFrutosIndividualesALargoPlazo}{\Inout trayectorias: \TLista{\seqr}, \In cooperan: \TLista{\bool}, \In apuestas: \TLista{\seqr}, \In pagos: \TLista{\seqr}, \In eventos: \TLista{\TLista{\nat}}}{}
+\vspace{0.1cm}
+    \requiere{trayectorias = trayectorias_{0} \y mismaLongitud(trayectorias, cooperan, apuestas, pagos, eventos) 
+    \vspace{0.1cm}
+    \newline{\y \longitud{cooperan}>0 \y mismasApuestasQuePagos(apuestas, pagos) \y sonPositivos(pagos)} 
+    \vspace{0.1cm}
+    \newline{\y eventosValidos(eventos, apuestas)} 
+    \vspace{0.1cm}
+    \y comienzaSoloConRecursoInicial(trayectorias) \wedge
+    sonApuestasValidas(apuestas)
+    }
+\vspace{0.1cm}
+	\asegura{{\longitud{trayectorias}} = {\longitud{trayectorias_{0}}} \y contieneALosIniciales(trayectorias, trayectorias0) \y 
+    \vspace{0.1cm}
+    \newline{tieneLosEventos(trayectorias, eventos) \y trayectoriasIndividuales(trayectorias, cooperan, apuestas, pagos, eventos)}}
+\end{proc}
+\vspace{0.3cm}
+
+\pred{mismaLongitud}{t, c, a, p, e: \TLista{T}}{
+\longitud{t} = \longitud{c} \y \longitud{c} = \longitud{a} \y
+\newline{\longitud{a} = \longitud{p} \y \longitud{p} = \longitud{e}}
+}
+\vspace{0.3cm}
+
+\pred{mismasApuestasQuePagos}{a,p: \TLista{\seqr}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{a} \implicaLuego \longitud{a[i]} = \longitud{p[i]}}
+}
+\vspace{0.3cm}
+
+\pred{sonPositivos}{s1: \TLista{\seqr}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{s1} \implicaLuego todosPositivos(s1[i])}
+}
+\vspace{0.3cm}
+
+\pred{eventosValidos}{e: \TLista{\TLista{\nat}}, p: \TLista{\seqr}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{e} } \implicaLuego{\paraTodo[unalinea]{j}{\ent}{0\leq j < \longitud{e[i]} \implicaLuego 0 \leq e[i][j] < \longitud{p[i]}}}
+}
+\vspace{0.3cm}
+
+\pred{comienzaSoloConRecursoInicial}{t: \TLista{\seqr}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{t} \yLuego sonPositivos(t) \implicaLuego \longitud{t[i]} = 1}
+}
+\vspace{0.3cm}
+
+\pred{contieneALosIniciales}{t: \TLista{\seqr}, t0: \TLista{\seqr}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{t} \implicaLuego t[i][0] = t0[i][0]}
+}
+\vspace{0.3cm}
+
+\pred{tieneLosEventos}{t: \TLista{\seqr}, e:\TLista{\TLista{\nat}}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{t} \implicaLuego \longitud{t[i]} - 1 = \longitud{e[i]}}
+}
+\vspace{0.3cm}
+
+\pred{trayectoriasIndividuales}{t: \TLista{\seqr}, c: \TLista{\bool}, a: \TLista{\seqr}, p: \TLista{\seqr}, e: \TLista{\TLista{\nat}}}{
+\paraTodo[unalinea]{i}{\ent}{0\leq i < \longitud{t} \implica trayectoria(i, t[i], t, c, a, p, e)}
+}
+\vspace{0.3cm}
+
+\pred{trayectoria}{i:\ent, r:\seqr , t: \TLista{\seqr}, c: \TLista{\bool}, a: \TLista{\seqr}, p: \TLista{\seqr}, e: \TLista{\TLista{\nat}}}{
+\paraTodo[unalinea]{j}{\ent}{1\leq j < \longitud{r} \implica (\neg aporta(i, c) \implicaLuego r[j] = r[j-1] * pagoEvento(i, j, a, p, e) + redistribucionEnJ(j, t, c)) \vee (aporta(i, c) \implicaLuego r[j] = redistribucionEnJ(j, t, c))} 
+}
+\vspace{0.3cm}
+
+\pred{sonApuestasValidas}{apuestas: \TLista{\TLista{\float}}}{(\forall j: \ent) (\forall k: \ent) (0 \leq j < |\text{apuestas}| \land 0 \leq k < |\text{apuestas}[j]| \implicaLuego 0 \leq \text{apuestas}[j][k] \leq 1)}
+
+\aux{pagoEvento}{i,j: \ent, a,p: \TLista{\seqr}, e: \TLista{\TLista{\nat}}}{\float}{
+apuestas[i][evento[i][j-1]] * pagos[i][evento[i][j-1]]
+}
+\vspace{0.3cm}
+
+\aux{redistribucionEnJ}{j: \ent, t: \TLista{\seqr}, c: \TLista{\bool}}{\float}{
+(\displaystyle\sum_{i=0}^{\longitud{b}-1} \IfThenElse{c[i]=true}{t[i][j]}{0})/\longitud{c}
+}
+\vspace{0.3cm}
+
+% EJERCICIO 3
+\subsection{trayectoriaExtrañaEscalera}
+\begin{proc}{trayectoriaExtrañaEscalera}{\In trayectoria: \seqr}{\bool}
+\vspace{0.1cm}	
+   % \requiere{{\longitud{trayectoria}} > 2}
+   \requiere{{\longitud{trayectoria}} > 1}
+\vspace{0.1cm}
+	\asegura{result = true \iff (|trayectoria| > 2 \y hayUnMaximoLocal(trayectoria)) \lor (|trayectoria| = 2 \y trayectoria[0] \neq trayectoria[1])} 
+\end{proc}
+\vspace{0.3cm}
+
+\pred{hayUnMaximoLocal}{t: \seqr}{
+\existe[unalinea]{i}{\ent}{1\leq i < \longitud{t} \yLuego (s[i] > s[i-1] \y s[i] > s[i+1])} \y
+\neg{\existe[unalinea]{j}{\ent}{1\leq j < \longitud{t} \y i\neq j\yLuego (s[j] > s[j-1] \y s[j] > s[j+1])}}
+}
+
+% EJERCICIO 4
+\subsection{individuoDecideSiCooperarONo}
+\begin{proc}{individuoDecideSiCooperarONo}{\In individuo: \nat, \In recursos: \seqr, \Inout cooperan: \seqB, \In apuestas: \TLista{\seqr}, \In pagos: \TLista{\seqr}, \In eventos: \TLista{\TLista{\nat}}}{}
+\vspace{0.1cm}	
+    \requiere{
+    0 \leq individuo < |recursos| \wedge cooperan = cooperan_{0} \wedge 
+    \newline{|cooperan| > 0 \y mismaLongitud(recursos, cooperan, apuestas, pagos, eventos) \wedge }
+     
+\newline{\y mismasApuestasQuePagos(apuestas, pagos) \y sonPositivos(pagos)} 
+    \vspace{0.1cm}
+    \newline{\y eventosValidos(eventos, apuestas)} \wedge 
+    sonApuestasValidas(apuestas)
+    }
+\vspace{0.1cm}
+	\asegura{\longitud{cooperan} = \longitud{cooperan_{0}} \wedge \\ \paraTodo[unalinea]{i}{\ent}{0 \leq i < |cooperan_0| \wedge i \neq individuo \implicaLuego
+        cooperan[i] = cooperan_0[i]}{} \wedge \\ 
+        ganancias(individuo, apuestas[individuo], eventos[individuo], pagos[individuo], cooperan, recursos) \geq 
+\newline{ganancias(individuo, apuestas[individuo], eventos[individuo], pagos[individuo], cooperan_{0}, 
+recursos)})}
+        }
+\end{proc}
+\vspace{0.3cm}
+
+
+% EJERCICIO 5
+\subsection{individuoActualizaApuesta}
+\begin{proc}{individuoActualizaApuesta}{
+\In individuo: \nat,
+\In recursos: \TLista{\float}, 
+\In cooperan: \TLista{\bool}, 
+\Inout apuestas: \TLista{\TLista{\float}}, 
+\In pagos:  \TLista{\TLista{\float}},
+\In eventos: \TLista{\TLista{\nat}}}
+{}
+	%    \modifica{parametro1, parametro2,..}
+	\requiere{apuestas = A_{0} \y sonApuestasValidas(A_{0})\hspace{0.03cm} \y |cooperan| > 0
+ \newline{sonPositivos(pagos) \y eventosValidos(eventos, apuestas)} \y \\ 0 \leq individuo < |recursos| \wedge mismaLongitud(recursos, cooperan, apuestas, eventos) }
+	\asegura{|apuestas| = |A_{0}| \wedge \\ sonApuestasValidas(apuestas) \wedge \\ 
+ \begin{minipage}[t]{\textwidth}
+ \paraTodo[unalinea]{j}{\ent}{0 \leq j < |apuestas[individuo]| \wedge j \neq individuo \implicaLuego  apuestas [j] =  A_{0}[j]} 
+ \end{minipage} 
+ \\ \wedge 
+ \neg\existe{apuestaTeorica}{\TLista{\float}}{esApuestaValida(apuestaTeorica) \\
+  \yLuego
+ ganancias (individuo, apuestaTeorica, eventos[individuo], pagos[individuo],cooperan, recursos) > \\  ganancias (individuo, apuestas[individuo], eventos[individuo], pagos[individuo],cooperan, recursos
+ )}
+}
+\end{proc}
+\vspace{5mm}
+
+	\aux{ganancias}{individuo: \nat, 
+ apuesta: \TLista{\float}, 
+ eventos: \TLista{\nat}, pagos: \TLista{\float}, cooperan: \TLista{Bool}, recursos: {\seqr}}{\float}{\\\IfThenElse{cooperan[individuo]}{\\redistribución (recursos, cooperan)}{\\performanceIndividual(apuesta, pagos, individuo, eventos, recursos[individuo]) +\\ redistribución (recursos, cooperan)
+}}
+ 
+ \vspace{5mm}
+
+
+ \aux{performanceIndividual}{apuestas:\TLista{\float}, pagos: \TLista{\float}, Individuo: \nat, eventos[individuo]: \seqr, recursos: \float}{\float}{\\recursos * \prod_{j=0}^{|apuestas|-1} pagos[j]*apuestas[j]^{#apariciones(eventos, j+1)}}
+ \vspace{5mm}
+
+
+ \vspace{5mm}
+\pred{esApuestaValida}{apuesta: \TLista{\float}}{\paraTodo[unalinea]{j}{\ent}{0 \leq j < |apuesta| \implicaLuego  (- apuestas [j] \leq 0 \wedge \sum_{j=0}^{|apuesta|-1} apuestas[j] = 1)}}
+\vspace{5mm}
+
+% SECCION 2 CORRECTITUD
+\section{Demostración de correctitud}
+
+Tenemos la tripla de Hoare como dato, ya que nos dan el \textit{requiere}, el \textit{asegura} y el código que implementa en smallang. Si llamamos al \textit{requiere} P, al \textit{asegura} Q y al código S, tenemos que demostrar que 
+
+ \begin{center}
+     \{P\} S \{Q\}
+ \end{center}
+
+\\
+es correcta respecto de S. Para eso, aplicaremos la siguiente f\'ormula:
+ \begin{center}
+  $$  \{P\} S \{Q\} \leftrightarrow   \{P\} \implies WP(S,Q) $$
+ \end{center}
+
+Empezamos por calcular entonces la WP(S,Q), la cual podemos reescribir de la siguiente forma.
+
+ \begin{center}
+   WP(S,Q)= WP(res := recursos; i:= 0, \textbf{while}, Q)
+ \end{center}
+Por el Axioma 1, tenemos lo siguiente
+
+ \begin{center}
+   WP(S,Q)= WP(res := recursos; i:= 0, WP(\textbf{while}, Q))
+ \end{center}
+
+Para demostrar que el ciclo es parcialmente correcto, aplicamos el Teorema del Invariante ya que es un ciclo, debemos probar lo siguiente
+
+\begin{itemize}
+	\item $P_{c} \implies I$
+	\item $\{I \wedge B\} S1 \{I\}$
+	\item $\{I \wedge \neg B\} \implies Q_{c} $
+\end{itemize}\\
+\vspace{5cm}
+Donde  $P_{c}\equiv \{i=0 \wedge res=recursos \wedge apuesta_{c} + apuesta_{s} = 1 ∧ pago_{c} > 0 \wedge pago_{s} > 0 \wedge apuesta_{c} > 0 \wedge apuesta_{s} > 0 \wedge recurso > 0\}$, $B \equiv \{i < |eventos|\}$, $Q_{c}\equiv \{ res = recursos * (apuesta.c * pago.c)^{cantApariciones(eventos,T)}*(apuesta.s * pago.s)^{cantApariciones(eventos,F)}\}$, S1 el c\'odigo del ciclo
+ \vspace{5mm}
+\begin{lstlisting}[caption={Lo llamaremos S1 en los siguientes pasos.},label=code:for]
+	if eventos[i] then
+        res = (res x apuesta.c) x pago.c //lo llamaremos S2
+    else
+        res = (res x apuesta.s) x pago.s //lo llamaremos S3
+    endif
+    i = i+1
+	\end{lstlisting}
+
+e I es el invariante que proponemos:
+ \begin{center}
+ $I \equiv \{0 \leq i \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \}$
+ \end{center}
+  \vspace{5mm}
+Ahora, podemos comenzar a demostrar los tres puntos del Teorema del Invariante. 
+\vspace{5mm}
+\\
+\underline{$P_{c} \implies I$:}
+\vspace{5mm}
+\\
+Asumiendo $P_{c}$ tenemos luego en I lo siguiente:
+\vspace{5mm}
+\\
+$I \equiv \{0 \leq \textbf{0} \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{\textbf{-1}}if... = recursos \} \equiv \{ res = recursos \}$ 
+\vspace{5mm}
+\\
+Por lo que, se demuestra que la precondición del ciclo implica el Invariante, o lo que es lo mismo, el Invariante es válido antes de ingresar al ciclo.
+\vspace{5mm}
+\\
+\underline{$\{I \wedge B\} S1 \{I\}$:}
+\vspace{5mm}
+\\
+Validar esta tripla, implica demostrar que 
+ \begin{center}
+$\{I \wedge B\} \implies WP(S1,I)$:
+ \end{center}
+
+Por el Axioma 3, tenemos que 
+ \begin{center}
+$WP(S1,I) \equiv WP(\IfThenElse{B}{S2}{S3};i:=i+1,I) \equiv WP(\IfThenElse{B}{S2}{S3},WP(i:=i+1,I))$
+ \end{center}
+\vspace{5mm}
+\\
+\textbf{Calculamos $WP(i:=i+1,I)$:}
+\vspace{5mm}
+\\
+Por Axioma 1, tenemos que 
+ \begin{center}
+$WP(i:=i+1,I)\equiv I_{i+1}^{i}$
+ \end{center}
+  \begin{center}
+$I_{i+1}^{i}\equiv\{0 \leq \textbf{i+1} \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{\textbf{i+1-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \} $
+ \end{center}
+ Simplificando en la productoria tenemos el resultado de $WP(i:=i+1,I)$:
+  \begin{center}
+$I_{i+1}^{i}\equiv\{0 \leq \textbf{i+1} \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{\textbf{i}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \} $
+ \end{center}
+
+ Luego, por Axioma 4, 
+\vspace{5mm}
+\\
+$ WP(\IfThenElse{B}{S2}{S3},I_{i+1}^{i})\equiv (B \wedge WP(S2,I_{i+1}^{i})) \lor (\neg B \wedge WP(S3,I_{i+1}^{i}))  $
+\vspace{5mm}
+\\
+\textbf{Calculamos $(B \wedge WP(S2,I_{i+1}^{i}))\vspace{2mm} \\ 
+\equiv\{eventos[i] \wedge (I_{i+1}^{i})_{res*apuesta.c*pago.c}^{res}\} \vspace{2mm} \\  
+\equiv\{eventos[i] \wedge 0 \leq i+1 \leq |eventos| \yLuego\vspace{2mm} \\  \textbf{res * apuesta.c * pago.c}= recursos  * 
+ \prod_{j=0}^{\textbf{i}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \}
+$}
+\vspace{5mm}
+\\
+Como $eventos[i]=true$ podemos simplificar de productoria este valor, quedando lo siguiente: 
+\vspace{3cm}
+\\
+$(B \wedge WP(S2,I_{i+1}^{i}) 
+\vspace{2mm} \\ \equiv\{
+eventos[i] \wedge 
+(0 \leq i+1 \leq |eventos|) \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \}$
+\vspace{5mm}
+\\
+
+ Análogamente, para el calculo de $\neg B \wedge WP(S3,I_{i+1}^{i})$, obtenemos: 
+\vspace{5mm}
+\\
+$(\neg B \wedge WP(S3,I_{i+1}^{i}))
+\vspace{2mm} \\ \equiv \{
+\neg eventos[i] \wedge 
+(0 \leq i+1 \leq |eventos|) \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}  \} $
+\vspace{5mm}
+\\
+Por lo que, 
+\vspace{5mm}
+\\
+$ WP(\IfThenElse{B}{S2}{S3},I_{i+1}^{i}) \vspace{2mm} \\ \equiv def(B) \yLuego (B \wedge WP(S2,I_{i+1}^{i})) \lor (\neg B \wedge WP(S2,I_{i+1}^{i})) \vspace{2mm} \\ \equiv 0 \leq i < |eventos| \yLuego (eventos[i] \lor \neg eventos[i]) \wedge 
+0 \leq i+1 \leq |eventos| \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \vspace{2mm} \\ \equiv  0 \leq i < |eventos| \yLuego
+0 \leq i+1 \leq |eventos| \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}
+ \vspace{2mm} \\ \equiv 
+0 \leq i+1 \leq |eventos| \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}$ 
+\vspace{5mm}
+\\
+Asi que, tenemos lo siguiente: 
+\vspace{5mm}
+\\
+$WP(S1,I) \equiv WP(\IfThenElse{B}{S2}{S3};i:=i+1,I) \equiv  \vspace{2mm} \\ 
+\{ 0 \leq i+1 \leq |eventos| \yLuego \\\textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}\}$
+\vspace{5mm}
+\\
+Debemos ahora, con los calculos hechos, volver al principio, e intentar demostrar la siguiente formula:
+ \begin{center}
+$\{I \wedge B\} \implies WP(S1,I)$:
+ \end{center}
+
+Donde 
+\vspace{5mm}
+\\
+$\{I \wedge B\} \equiv \{0 \leq i < |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \} $
+ \vspace{5mm}
+\\
+Y  WP(S1,I) es el resultado que obtuvimos recien, es decir, 
+ \vspace{5mm}
+\\
+$WP(S1,I) \equiv
+\{ 0 \leq i+1 \leq |eventos| \yLuego \textbf{res}= recursos  * 
+ \prod_{j=0}^{\textbf{i-1}} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}\}$
+\begin{center}
+$0 \leq i < |eventos| \implies 0 \leq i+1 \leq |eventos| $ 
+\end{center}
+Y como lo que esta luego del  es lo mismo en ambos predicados, damos por terminada la demostracion.
+ \vspace{15mm}
+\\
+\underline{$\{I \wedge \neg B\} \implies Q_{c}$:}
+ \vspace{5mm}
+\\
+$\{I \wedge \neg B\} \equiv \{0 \leq i \leq |eventos| \yLuego \vspace{2mm} \\res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \wedge i >= |eventos| \}  \vspace{2mm} \\ 
+ \equiv \{ i = |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}\}  \vspace{2mm} \\ 
+ \equiv \{ i = |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{|eventos|-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s}\} \vspace{2mm} \\ 
+ \equiv \{ res = recursos * (apuesta.c * pago.c)^{cantApariciones(eventos,T)}*(apuesta.s * pago.s)^{cantApariciones(eventos,F)}\}\vspace{2mm} \\ 
+ \equiv Q_{c}. \vspace{5mm}  $\\
+\vspace{5mm} 
+ Por lo que queda demostrada la tercera implicación. 
+
+Hemos demostrado que el ciclo es parcialmente correcto respecto de su especificación. Para ahora demostrar que el ciclo termina, usaremos una funcion variante $f_{v}$ y probaremos lo siguiente:
+\begin{itemize}
+	\item $\{ I \wedge B \wedge f_{v} = V_{0} \}\hspace{0.1 cm} S\hspace{0.1 cm} \{ f_{v} < V_{0}\} $
+	\item $\{I \wedge f_{v} \leq 0 \} \implies \{\neg B\}$
+\end{itemize}
+
+Donde $f_{v} =|eventos| - i$, e $I, B \hspace{0.1 cm} y\hspace{0.1 cm} S$ los mismos que en el apartado anterior.
+ \vspace{5mm}
+\\
+\underline{$\{ I \wedge B \wedge f_{v} = V_{0} \}\hspace{0.1 cm} S\hspace{0.1 cm} \{ f_{v} < V_{0}\} $:}
+ \vspace{5mm}
+\\
+Demostrar este punto, nuevamente es demostrar que
+$\{ I \wedge B \wedge f_{v} = V_{0} \} \implies WP(S,f_{v} < V_{0}\}$.
+ \vspace{5mm}
+\\
+\textbf{Calculamos $WP(S,f_{v} < V_{0}\} $}:
+ \vspace{5mm}
+\\
+$WP(\IfThenElse{B}{S2}{S3};i:= i+1,f_{v} < V_{0}) \equiv \vspace{2mm} \\ WP(\IfThenElse{B}{S2}{S3},WP(i:= i+1,f_{v} < V_{0}))  \equiv 
+\vspace{2mm} \\ WP(\IfThenElse{B}{S2}{S3},|eventos| -i-1 < V_{0}) \equiv  
+\vspace{2mm} \\ (B \wedge WP(S2,|eventos| -i-1 < V_{0})) \lor (\neg B \wedge WP(S3,|eventos| -i-1 < V_{0})) \equiv 
+\vspace{2mm} \\ (B \wedge eventos| -i-1 < V_{0}) \lor  (\neg B \wedge eventos| -i-1 < V_{0}) \equiv 
+\vspace{2mm} \\  (B \lor \neg B) \wedge |eventos| -i-1 < V_{0} \equiv  |eventos| -i-1 < V_{0} .
+$ 
+ \vspace{5mm}
+\\
+Luego, 
+ \vspace{5mm}
+\\
+$
+\{ I \wedge B \wedge f_{v} = V_{0} \} \equiv 
+\{0 \leq i \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \wedge |eventos| - i = V_{0}  \} \implies \{ |eventos| -i-1 < V_{0} \} 
+$
+ \vspace{5mm}
+\\
+Ya que, si
+$
+ |eventos| - i = V_{0}, \hspace{0.2cm}$ se tiene que $  \hspace{0.2cm}|eventos| -i-1 < V_{0} 
+$
+ \vspace{5mm}
+\\
+\underline{$\{I \wedge f_{v} \leq 0 \} \implies \{\neg B\}$:}
+ \vspace{5mm}
+\\
+$
+\{I \wedge f_{v} \leq 0 \} \equiv 
+\vspace{2mm} \\ \{ 0 \leq i \leq |eventos| \yLuego res = recursos *
+ \prod_{j=0}^{i-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \wedge |eventos| - i \leq 0\} \equiv 
+ \vspace{2mm} \\ 
+ \{ i = |eventos| \yLuego\vspace{2mm}  \\   res = recursos *
+ \prod_{j=0}^{|eventos|-1} \IfThenElse{eventos[j]}{apuesta.c * pago.c}{apuesta.s * pago.s} \} \implies \neg \{  i < |eventos| \} \equiv \{ \neg B\}. 
+$
+ \vspace{5mm}
+\\
+Finalmente, el ciclo termina y es correcto respecto de su especificación.
+ \vspace{5mm}
+\\
+
+
+Ahora bien, ¿podemos decir cual es la precondición mas debil del ciclo? ¿Qué tenemos que hacer para probar que 
+\vspace{5mm}
+\\ $\{Pre\}res:= recursos; i:=0; \textbf{while}\{Post\}$ es válida?
+\begin{enumerate} \setlength\itemsep{0cm}
+	\item $ \{Pre\} \implies WP(res:=recursos;i:=0,P_{c}) $
+	\item $P_{c} \implies WP(while,Q_{c}) $
+	\item $Q_{c} \implies \{Post\} $
+\end{enumerate}
+
+El punto 1 se demuestra observando que 
+\vspace{2mm} \\
+$\{Pre\} \equiv \{apuesta.c + apuesta.s = 1 \wedge pago.c > 0 \wedge pago.s > 0 \wedge apuesta.c > 0 \wedge apuesta.s > 0 \wedge recurso > 0 \}$
+\vspace{2mm} \\
+implica 
+\vspace{2mm} \\
+$WP(res:=recursos; i:=0, P_{c}) \equiv \{ i=0 \wedge res = recursos\}$
+\vspace{2mm} \\
+Como los recursos iniciales son positivos, el punto 1 es evidentemente correcto.
+\vspace{5mm} \\
+
+
+Los puntos 2 y 3 son igualdades de terminos, asi que la implicación es valida en ambos casos.\vspace{5mm} \\ Luego, por Monotonía:
+\vspace{5mm} \\
+$ \{Pre\} \implies WP(res:=recursos;i:=0;while,Post) $
+\vspace{5mm} \\ Que era lo que queríamos demostrar.
+
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
